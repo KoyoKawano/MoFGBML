@@ -18,9 +18,10 @@ public class Debugmain {
 		double[][] debugSet = {
 				{0.0, 0.0},
 				{0.2, 0.2},
-				{0.1, 0.4}
+				{0.1, 0.4},
+				{0.8, 0.5}
 		};
-		int[] classLabel0 = {0, 0, 0};
+		int[] classLabel0 = {0, 0, 0, 1};
 
  		ArrayList<ClassLabel> classLabel = new ArrayList<>();
  		for(int c : classLabel0) {
@@ -35,7 +36,6 @@ public class Debugmain {
  		}
 
  		DataSet train = new DataSet();
- 		ArrayList<Pattern> pattern = new ArrayList<>();
  		for(int i=0; i < classLabel.size(); i++)
  			train.addPattern(new Pattern(i, inputs.get(i), classLabel.get(i)));
 		train.setCnum(1);
