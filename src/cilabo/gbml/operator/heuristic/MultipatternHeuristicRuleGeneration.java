@@ -14,7 +14,7 @@ import cilabo.fuzzy.rule.antecedent.Antecedent;
 import cilabo.utility.GeneralFunctions;
 import cilabo.utility.Random;
 
-public class MultipatternHeuristicRuleGeneration implements Operator<List<Pattern>, List<Antecedent>>{
+public class MultipatternHeuristicRuleGeneration implements Operator<List<Pattern>, List<Antecedent>>, PatternBaseRuleGeneration{
 	Knowledge knowledge;
 	// H is # of patterns using for rule generation
 	// 1 pattern is base pattern, (H-1) patterns is support pattern
@@ -147,4 +147,10 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 	public Knowledge getKnowledge() {
 		return this.knowledge;
 	}
+	
+	@Override
+	public Antecedent ruleGenerate(Pattern pattern) {
+		return multipatternHeuristicRuleGeneration(pattern);
+	}
 }
+

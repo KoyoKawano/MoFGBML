@@ -15,7 +15,7 @@ import cilabo.utility.Random;
  * 誤識別パターン集合を受けとり，ヒューリスティクルール生成法によって生成された前件部を返す.
  *
  */
-public class HeuristicRuleGeneration implements Operator<List<Pattern>, List<Antecedent>>{
+public class HeuristicRuleGeneration implements Operator<List<Pattern>, List<Antecedent>>, PatternBaseRuleGeneration{
 	Knowledge knowledge;
 
 	public HeuristicRuleGeneration(Knowledge knowledge) {
@@ -92,6 +92,11 @@ public class HeuristicRuleGeneration implements Operator<List<Pattern>, List<Ant
 
 	public Knowledge getKnowledge() {
 		return this.knowledge;
+	}
+	
+	@Override
+	public Antecedent ruleGenerate(Pattern pattern) {
+		return heuristicRuleGeneration(pattern);
 	}
 
 }

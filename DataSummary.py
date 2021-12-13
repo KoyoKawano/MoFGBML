@@ -9,15 +9,17 @@ import pandas as pd
 import statistics
 
 
-folder = 'results\\FAN2021\\'
 sep = "\\"
+
+folder = 'results' + sep + 'FAN2021' + sep 
+
 columns = ["errorRate", "ruleNum"]
 
 Dataset = 'iris'
 
 """
 fuction SummaryOneTrial
-this function return results(max rule number, min error rate for train, min error rate for train)
+this function return dictionary(max rule number, min error rate for train, min error rate for test)
 for one trial.
 @param Dataset : String
 @param trial : String , it is the trial number. 
@@ -37,7 +39,7 @@ def SummaryOneTrial(Dataset, trial):
     
     return {"ruleNum" : maxRuleNum, "TraError" : TraError, "TstError" : TstError}
 
-# make trial number rr = {0,1,2}, trial = {0,1,...9}
+# make trial number rr = {0,1,2}, cc = {0,1,...9}
 trial = [str(rr) + str(cc) for rr in range(3) for cc in range(10)]
 
 results = list(map(lambda x : SummaryOneTrial(Dataset, x), trial))
