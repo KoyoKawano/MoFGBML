@@ -15,7 +15,7 @@ import cilabo.fuzzy.classifier.operator.classification.Classification;
 import cilabo.fuzzy.classifier.operator.classification.factory.SingleWinnerRuleSelection;
 import cilabo.fuzzy.knowledge.Knowledge;
 import cilabo.fuzzy.knowledge.factory.HomoTriangleKnowledgeFactory;
-import cilabo.fuzzy.knowledge.membershipParams.HomoTriangle_2_3;
+import cilabo.fuzzy.knowledge.membershipParams.HomoTriangle_2_3_4_5;
 import cilabo.fuzzy.rule.RejectedRule;
 import cilabo.fuzzy.rule.Rule;
 import cilabo.fuzzy.rule.antecedent.Antecedent;
@@ -46,7 +46,7 @@ public class ProblemMichiganFGBML<S extends Solution<?>> extends AbstractMichiga
 		// Initialization
 		this.knowledge = HomoTriangleKnowledgeFactory.builder()
 				.dimension(train.getNdim())
-				.params(HomoTriangle_2_3.getParams())
+				.params(HomoTriangle_2_3_4_5.getParams())
 				.build()
 				.create();
 		AntecedentFactory antecedentFactory = RandomInitialization.builder()
@@ -76,6 +76,11 @@ public class ProblemMichiganFGBML<S extends Solution<?>> extends AbstractMichiga
 	/* Getter */
 	public Knowledge getKnowledge() {
 		return this.knowledge;
+	}
+
+	/*Getter */
+	public DataSet getEvaluationDataset() {
+		return this.evaluationDataset;
 	}
 
 	/* Setter */

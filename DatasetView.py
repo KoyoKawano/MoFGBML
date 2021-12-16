@@ -8,8 +8,6 @@ Created on Thu Dec  9 17:49:36 2021
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-import numpy as np
-from sklearn import datasets
 from sklearn.decomposition import PCA
 from sklearn.manifold import MDS
 from sklearn.manifold import LocallyLinearEmbedding

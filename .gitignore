@@ -4,6 +4,7 @@ copy/
 python/
 results/
 doc/
+ALGORITHM_ID/
 
 .DS_Store
 jMetal.log

@@ -17,11 +17,11 @@ import cilabo.data.DataSet;
 import cilabo.fuzzy.classifier.RuleBasedClassifier;
 import cilabo.fuzzy.classifier.operator.postProcessing.PostProcessing;
 import cilabo.fuzzy.classifier.operator.postProcessing.factory.RemoveNotBeWinnerProcessing;
-import cilabo.gbml.algorithm.MichiganFGBML;
-import cilabo.gbml.component.replacement.SingleObjectiveMaximizeReplacementWithoutOffspringFitness;
+import cilabo.gbml.algorithm.OnePlusOneESMichiganFGBML;
+import cilabo.gbml.component.replacement.RuleAdditionAndNotUsedRuleRemoveStyleReplacement;
 import cilabo.gbml.component.variation.MichiganHeuristicVariation;
 import cilabo.gbml.operator.crossover.UniformCrossover;
-import cilabo.gbml.operator.heuristic.MultipatternHeuristicRuleGeneration;
+import cilabo.gbml.operator.heuristic.HeuristicRuleGeneration;
 import cilabo.gbml.operator.mutation.MichiganMutation;
 import cilabo.gbml.problem.impl.michigan.ProblemMichiganFGBML;
 import cilabo.metric.ErrorRate;
@@ -100,8 +100,8 @@ public class Debugmain {
 		Input.inputSingleLabelDataSet(train, dataName);
 
 		// Parameters
-		int populationSize = 60;
-		int offspringPopulationSize = 12;
+		int populationSize = 30;
+		int offspringPopulationSize = 6;
 		// Problem
 		int seed = 0;
 		JMetalRandom.getInstance().setSeed(seed);
@@ -114,10 +114,11 @@ public class Debugmain {
 		MutationOperator<IntegerSolution> mutation = new MichiganMutation(mutationProbability,
 																	  problem.getKnowledge(),
 																	  train);
-		int H = 2;
-		MultipatternHeuristicRuleGeneration ruleGenerateOperator = new MultipatternHeuristicRuleGeneration(problem.getKnowledge(),
-																								H,
-																								train);
+//		int H = 2;
+//		MultipatternHeuristicRuleGeneration ruleGenerateOperator = new MultipatternHeuristicRuleGeneration(problem.getKnowledge(),
+//																								H,
+//																								train);
+		HeuristicRuleGeneration ruleGenerateOperator = new HeuristicRuleGeneration(problem.getKnowledge());
 		// Termination
 		int generation = 10000;
 		int evaluations = populationSize + generation*offspringPopulationSize;
@@ -130,11 +131,11 @@ public class Debugmain {
 													problem.getConsequentFactory(),
 													ruleGenerateOperator);
 		// Replacement
-		Replacement<IntegerSolution> replacement = new SingleObjectiveMaximizeReplacementWithoutOffspringFitness<>();
+		Replacement<IntegerSolution> replacement = new RuleAdditionAndNotUsedRuleRemoveStyleReplacement(problem);
 
 		// Algorithm
-		MichiganFGBML<IntegerSolution> algorithm
-				= new MichiganFGBML<>(problem, populationSize, offspringPopulationSize,
+		OnePlusOneESMichiganFGBML<IntegerSolution> algorithm
+				= new OnePlusOneESMichiganFGBML<>(problem, populationSize, offspringPopulationSize,
 									outputFrequency, trialRootDir,
 									crossover, mutation, termination, variation, replacement);
 
