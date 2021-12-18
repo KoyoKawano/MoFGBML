@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.util.List;
 
 import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.solution.integersolution.IntegerSolution;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.fileoutput.FileOutputContext;
 import org.uma.jmetal.util.fileoutput.SolutionListOutput;
 
 import cilabo.gbml.solution.MichiganSolution;
+import cilabo.gbml.solution.util.attribute.NumberOfWinner;
 
 public class MichiganSolutionListOutput extends SolutionListOutput {
 
@@ -60,6 +62,27 @@ public class MichiganSolutionListOutput extends SolutionListOutput {
 			if(solutionList.size() > 0) {
 				for(int i = 0; i < solutionList.size(); i++) {
 					bufferedWriter.write(((MichiganSolution)solutionList.get(i)).getRule().toString());
+					bufferedWriter.newLine();
+				}
+				bufferedWriter.close();
+			}
+		}
+		catch (IOException e) {
+			throw new JMetalException("Error writing data ", e);
+		}
+	}
+
+	public void printMichiganSolutionFormatsToCSV(FileOutputContext context, List<? extends Solution<?>> solutionList) {
+		BufferedWriter bufferedWriter = context.getFileWriter();
+		String attributeId = (new NumberOfWinner<IntegerSolution>()).getAttributeId();
+		try {
+			if(solutionList.size() > 0) {
+				for(int i = 0; i < solutionList.size(); i++) {
+					bufferedWriter.write(((MichiganSolution)solutionList.get(i))
+											.getRule()
+											.toStringCSVFormat() + ","
+											+ ((MichiganSolution)solutionList.get(i))
+											 	.getAttribute(attributeId));
 					bufferedWriter.newLine();
 				}
 				bufferedWriter.close();

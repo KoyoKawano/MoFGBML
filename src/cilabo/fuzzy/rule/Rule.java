@@ -64,6 +64,15 @@ public class Rule implements InterfaceRule {
 		return str;
 	}
 
+	public String toStringCSVFormat() {
+		String str = "";
+		str += this.antecedent.toString() + ",";
+		str += this.consequent.getRuleWeight().toString() + ",";
+		str += this.consequent.getClassLabel().toString();
+
+		return str;
+	}
+
 	public static RuleBuilder builder() {
 		return new RuleBuilder();
 	}

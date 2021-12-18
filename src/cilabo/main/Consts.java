@@ -23,16 +23,16 @@ import java.util.ResourceBundle;
 public class Consts {
 
 	//Experimental Settings *********************************
-	public static int populationSize = 60;
-	public static int offspringPopulationSize = 60;
-	public static int terminateGeneration = 5000;
-	public static int terminateEvaluation = 300000;
-	public static int outputFrequency = 6000;
+	public static int populationSize = 30;
+	public static int offspringPopulationSize = 6;
+	public static int terminateGeneration = 10000;
+	public static int terminateEvaluation = 60000;
+	public static int outputFrequency = 600;
 
 	//Michgan style Initial Population Size
 	public static int initialPopulationSize = 30;
 	//Random Number ***************************************
-	public static int RAND_SEED = 2020;
+	public static int RAND_SEED = 2021;
 
 	//OS ************************************
 	public static int WINDOWS = 0;	//Windows

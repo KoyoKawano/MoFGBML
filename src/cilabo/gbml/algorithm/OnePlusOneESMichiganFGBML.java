@@ -39,6 +39,7 @@ import cilabo.gbml.solution.MichiganSolution;
 import cilabo.metric.ErrorRate;
 import cilabo.metric.Metric;
 import cilabo.util.fileoutput.MichiganSolutionListOutput;
+import cilabo.utility.Output;
 
 public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEvolutionaryAlgorithm<S, List<S>>
 							implements ObservableEntity
@@ -64,6 +65,9 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 
 	private long startTime;
 	private long totalComputingTime;
+
+	private double minErrorRate;
+	private int ruleNum;
 
 	private Observable<Map<String, Object>> observable;
 
@@ -126,7 +130,7 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 
 		DataSet train = ((ProblemMichiganFGBML)problem).getEvaluationDataset();
 		Metric metric = new ErrorRate();
-		double minValue = (double)metric
+		minErrorRate = (double)metric
 							.metric(((AbstractMichiganGBML_Problem<S>)problem)
 							.population2classifier(population), train);
 
@@ -141,8 +145,8 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 								.metric(((AbstractMichiganGBML_Problem<S>)problem)
 								.population2classifier(population), train);
 
-	      if(errorRate < minValue) {
-	    	  minValue = errorRate;
+	      if(errorRate < minErrorRate) {
+	    	  minErrorRate = errorRate;
 	    	  bestPopulation = population.stream()
 								.map(x-> (S)(MichiganSolution)x.copy())
 								.collect(Collectors.toList());
@@ -153,9 +157,7 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 							.collect(Collectors.toList());
 
 	      }
-//	     System.out.println("*******print population**************");
-//	     population.forEach(x->System.out.println(((MichiganSolution)x).toString()));
-//	     System.out.println("\\\\");
+	      populationSize = population.size();
 	      updateProgress();
 	    }
 		/***  END ***/
@@ -191,7 +193,10 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 		if (evaluations!=null) {
 			if (evaluations % frequency == 0) {
 				new MichiganSolutionListOutput(getPopulation())
-					.printSolutionsToFile(new DefaultFileOutputContext(outputRootDir+sep+"solutions-"+evaluations+".txt"), getPopulation());
+					.printMichiganSolutionFormatsToCSV(new DefaultFileOutputContext(outputRootDir+sep+"solutions-"+evaluations+".csv"), getPopulation());
+
+				String str = Double.toString(minErrorRate) + "," + Integer.toString(populationSize);
+				Output.writeln(outputRootDir+sep+"errorAndRuleNum.csv", str, true);
 			}
 		}
 		else {
