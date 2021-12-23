@@ -6,6 +6,7 @@ results/
 doc/
 ALGORITHM_ID/
 Python/
+dataset/
 
 .DS_Store
 jMetal.log
