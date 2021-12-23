@@ -25,7 +25,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>cilabo.labo.developing.fan2021.FAN2021_Main</mainClass>
+              <mainClass>cilabo.labo.main.kawano.RuleAdditionMichiganStyleFGBML.RuleAdditionMichiganStyleFGBML_main</mainClass>
               <classpathPrefix>dependency/</classpathPrefix>>
               <addClasspath>true</addClasspath>
               <addExtensions>true</addExtensions>

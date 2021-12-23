@@ -65,7 +65,7 @@ public class Consts {
 	public static int RULE_CHANGE_NUM = (int)(initialPopulationSize * RULE_CHANGE_RT);
 	//Experiment ************************************
 	/** ドット表示する世代間隔 */
-	public static int PER_SHOW_DOT = 100;	//元PER_SHOW_GENERATION_NUM
+	public static int PER_SHOW_DOT = 1000;	//元PER_SHOW_GENERATION_NUM
 	/** 現世代数表示する世代間隔 */
 	public static int PER_SHOW_GENERATION_DETAIL = 10;
 

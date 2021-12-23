@@ -102,7 +102,7 @@ public class MichiganHeuristicVariation <S extends Solution<?>> implements Varia
 			bounds.add(Pair.of(0, knowledge.getFuzzySetNum(0)));
 		}
 		PittsburghSolution parent = new PittsburghSolution(bounds,
-															0,
+															1,
 															(List<IntegerSolution>) population,
 															new SingleWinnerRuleSelection());
 
