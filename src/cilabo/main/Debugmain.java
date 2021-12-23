@@ -1,38 +1,78 @@
 package cilabo.main;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.uma.jmetal.component.replacement.Replacement;
-import org.uma.jmetal.component.termination.Termination;
-import org.uma.jmetal.component.termination.impl.TerminationByEvaluations;
-import org.uma.jmetal.component.variation.Variation;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.apache.commons.lang3.tuple.Pair;
 import org.uma.jmetal.solution.integersolution.IntegerSolution;
-import org.uma.jmetal.util.observer.impl.EvaluationObserver;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
+import cilabo.data.ClassLabel;
 import cilabo.data.DataSet;
-import cilabo.fuzzy.classifier.RuleBasedClassifier;
-import cilabo.fuzzy.classifier.operator.postProcessing.PostProcessing;
-import cilabo.fuzzy.classifier.operator.postProcessing.factory.RemoveNotBeWinnerProcessing;
-import cilabo.gbml.algorithm.OnePlusOneESMichiganFGBML;
-import cilabo.gbml.component.replacement.RuleAdditionAndNotUsedRuleRemoveStyleReplacement;
-import cilabo.gbml.component.variation.MichiganHeuristicVariation;
-import cilabo.gbml.operator.crossover.UniformCrossover;
-import cilabo.gbml.operator.heuristic.HeuristicRuleGeneration;
-import cilabo.gbml.operator.mutation.MichiganMutation;
-import cilabo.gbml.problem.impl.michigan.ProblemMichiganFGBML;
-import cilabo.metric.ErrorRate;
-import cilabo.metric.Metric;
-import cilabo.utility.Input;
-import cilabo.utility.Output;
+import cilabo.data.InputVector;
+import cilabo.data.Pattern;
+import cilabo.fuzzy.knowledge.Knowledge;
+import cilabo.fuzzy.knowledge.factory.HomoTriangleKnowledgeFactory;
+import cilabo.fuzzy.knowledge.membershipParams.HomoTriangle_2_3;
+import cilabo.fuzzy.rule.Rule;
+import cilabo.fuzzy.rule.antecedent.Antecedent;
+import cilabo.fuzzy.rule.consequent.Consequent;
+import cilabo.fuzzy.rule.consequent.RuleWeight;
+import cilabo.gbml.solution.MichiganSolution;
 
 public class Debugmain {
 
 	public static void main(String[] args) {
 
+		double[][] debugSet = {
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+				{0.2, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+				{0.1, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+				{0.8, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+		};
+		int[] classLabel0 = {0, 0, 0, 1};
+
+ 		ArrayList<ClassLabel> classLabel = new ArrayList<>();
+ 		for(int c : classLabel0) {
+ 			ClassLabel tmp = new ClassLabel();
+ 			tmp.addClassLabel(c);
+ 			classLabel.add(tmp);
+ 		}
+
+ 		ArrayList<InputVector> inputs = new ArrayList<>();
+ 		for(double[] p : debugSet) {
+ 			inputs.add(new InputVector(p));
+ 		}
+
+ 		DataSet train = new DataSet();
+ 		for(int i = 0; i < classLabel.size(); i++)
+ 			train.addPattern(new Pattern(i, inputs.get(i), classLabel.get(i)));
+		train.setCnum(1);
+		train.setNdim(8);
+
+		Knowledge knowledge = HomoTriangleKnowledgeFactory.builder()
+				.dimension(train.getNdim())
+				.params(HomoTriangle_2_3.getParams())
+				.build()
+				.create();
+
+		int[] antecedentIndex = {0, 0, 0, 0, 0, 0, 0, 0};
+		Rule rule = new Rule(new Antecedent(knowledge, antecedentIndex),
+							 new Consequent(new ClassLabel(),new RuleWeight()));
+
+		int Size = 5000;
+		List<Pair<Integer, Integer>> bounds = new ArrayList<>();
+		for(int i = 0; i < Size * knowledge.getDimension(); i++) {
+			bounds.add(Pair.of(0, knowledge.getFuzzySetNum(0)));
+		}
+
+		MichiganSolution solution = new MichiganSolution(bounds, 0, 0, rule);
+		List<IntegerSolution> Pop = new ArrayList<>();
+		for(int i = 0; i < Size; i++)
+			Pop.add(solution.copy());
+
+		//PittsburghSolution p_solution = new PittsburghSolution(bounds, 1, Pop, new SingleWinnerRuleSelection());
+
+		System.out.println(rule.toString().getBytes().length);
 /*************debug multi pattern heuristic rule generation**************
 		double[][] debugSet = {
 				{0.0, 0.0},
@@ -83,6 +123,7 @@ public class Debugmain {
   		//test.variate()
 ***********************************************************************************
 */
+/*
 		int rr = 0;
 		int cc = 0;
 		MichiganStyleFGBML(rr, cc);
@@ -176,5 +217,7 @@ public class Debugmain {
 		str += "," + minValue;
 		str += "," + errorRate;
 		Output.writeln(Consts.ALGORITHM_ID_DIR + sep + "errorRate.csv", str, true);
+	}
+*/
 	}
 }
