@@ -30,7 +30,6 @@ public class Consts {
 	public static int outputFrequency = 600;
 
 	//Michgan style Initial Population Size
-	public static int initialPopulationSize = 30;
 	//Random Number ***************************************
 	public static int RAND_SEED = 2021;
 
@@ -48,7 +47,7 @@ public class Consts {
 	/** 初期ル―ル数 */
 	public static int INITIATION_RULE_NUM = 30;
 	/** 1識別器あたりの最大ルール数 */
-	public static int MAX_RULE_NUM = 60;
+	public static int MAX_RULE_NUM = 120;
 	/** 1識別器あたりの最小ルール数 */
 	public static int MIN_RULE_NUM = 1;
 
@@ -62,7 +61,7 @@ public class Consts {
 	/** Pittsburgh交叉確率 */
 	public static double PITTSBURGH_CROSS_RT = 0.9;	//元RULESET_CROSS_RT
 	/** Michgaanルール入れ替え数 */
-	public static int RULE_CHANGE_NUM = (int)(initialPopulationSize * RULE_CHANGE_RT);
+	public static int RULE_CHANGE_NUM = (int)(populationSize * RULE_CHANGE_RT);
 	//Experiment ************************************
 	/** ドット表示する世代間隔 */
 	public static int PER_SHOW_DOT = 1000;	//元PER_SHOW_GENERATION_NUM

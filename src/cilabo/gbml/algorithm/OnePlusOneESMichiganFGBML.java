@@ -195,7 +195,7 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 					.printMichiganSolutionFormatsToCSV(new DefaultFileOutputContext(outputRootDir+sep+"solutions-"+evaluations+".csv"), getPopulation());
 
 				String str = Double.toString(minErrorRate) + "," + Integer.toString(populationSize);
-				Output.writeln(outputRootDir+sep+"errorAndRuleNum.txt", str, true);
+				Output.writeln(outputRootDir+sep+"errorAndRuleNum.csv", str, true);
 			}
 		}
 		else {

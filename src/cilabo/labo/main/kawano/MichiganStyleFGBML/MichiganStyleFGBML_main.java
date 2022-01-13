@@ -1,4 +1,4 @@
-package cilabo.labo.main.kawano.RuleAdditionMichiganStyleFGBML;
+package cilabo.labo.main.kawano.MichiganStyleFGBML;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,8 +19,10 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import cilabo.data.DataSet;
 import cilabo.data.impl.TrainTestDatasetManager;
 import cilabo.fuzzy.classifier.RuleBasedClassifier;
+import cilabo.fuzzy.classifier.operator.postProcessing.PostProcessing;
+import cilabo.fuzzy.classifier.operator.postProcessing.factory.RemoveNotBeWinnerProcessing;
 import cilabo.gbml.algorithm.OnePlusOneESMichiganFGBML;
-import cilabo.gbml.component.replacement.RuleAdditionAndNotUsedRuleRemoveStyleReplacement;
+import cilabo.gbml.component.replacement.SingleObjectiveMaximizeReplacementWithoutOffspringFitness;
 import cilabo.gbml.component.variation.MichiganHeuristicVariation;
 import cilabo.gbml.operator.crossover.UniformCrossover;
 import cilabo.gbml.operator.heuristic.PatternBaseRuleGeneration;
@@ -34,7 +36,7 @@ import cilabo.utility.Output;
 import cilabo.utility.Parallel;
 import cilabo.utility.Random;
 
-public class RuleAdditionMichiganStyleFGBML_main {
+public class MichiganStyleFGBML_main {
 	public static void main(String args[]) throws JMetalException, FileNotFoundException {
 		String sep = File.separator;
 
@@ -42,7 +44,7 @@ public class RuleAdditionMichiganStyleFGBML_main {
 		System.out.println();
 		System.out.println("==== INFORMATION ====");
 		String version = "1.0";
-		System.out.println("main: " + RuleAdditionMichiganStyleFGBML_main.class.getCanonicalName());
+		System.out.println("main: " + MichiganStyleFGBML_main.class.getCanonicalName());
 		System.out.println("version: " + version);
 		System.out.println();
 		System.out.println("Algorithm: Rule Addition Michigan Style Fuzzy Genetics-Based Machine Learning");
@@ -119,7 +121,6 @@ public class RuleAdditionMichiganStyleFGBML_main {
 																		  train);
 
 			PatternBaseRuleGeneration ruleGenerateOperator = new PatternBaseRuleGenerationBuilder(H, problem.getKnowledge(), train.getPatterns()).build();
-
 			// Termination
 			Termination termination = new TerminationByEvaluations(Consts.populationSize + Consts.terminateGeneration * Consts.offspringPopulationSize);
 			// Variation
@@ -129,7 +130,7 @@ public class RuleAdditionMichiganStyleFGBML_main {
 														problem.getConsequentFactory(),
 														ruleGenerateOperator);
 			// Replacement
-			Replacement<IntegerSolution> replacement = new RuleAdditionAndNotUsedRuleRemoveStyleReplacement(problem);
+			Replacement<IntegerSolution> replacement = new SingleObjectiveMaximizeReplacementWithoutOffspringFitness<>();
 
 			// Algorithm
 			OnePlusOneESMichiganFGBML<IntegerSolution> algorithm
@@ -164,6 +165,9 @@ public class RuleAdditionMichiganStyleFGBML_main {
 				}
 			}
 
+			PostProcessing postProcessing = new RemoveNotBeWinnerProcessing(train);
+			postProcessing.postProcess(bestClassifier);
+
 			// Test data
 			double errorRate = (double)metric.metric(bestClassifier, test);
 			int ruleNum = bestClassifier.getRuleNum();
@@ -181,4 +185,3 @@ public class RuleAdditionMichiganStyleFGBML_main {
 		}
 
 }
-
