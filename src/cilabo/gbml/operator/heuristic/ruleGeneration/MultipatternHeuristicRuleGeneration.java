@@ -1,5 +1,5 @@
 //written by koyo kawano
-package cilabo.gbml.operator.heuristic;
+package cilabo.gbml.operator.heuristic.ruleGeneration;
 
 import java.util.ArrayList;
 import java.util.Comparator;

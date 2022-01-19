@@ -9,6 +9,7 @@ import cilabo.fuzzy.knowledge.Knowledge;
 import cilabo.fuzzy.knowledge.factory.HomoTriangleKnowledgeFactory;
 import cilabo.fuzzy.knowledge.membershipParams.HomoTriangle_2_3_4_5;
 import cilabo.fuzzy.rule.antecedent.Antecedent;
+import cilabo.gbml.operator.heuristic.ruleGeneration.HeuristicRuleGeneration;
 import cilabo.utility.Input;
 import cilabo.utility.Random;
 

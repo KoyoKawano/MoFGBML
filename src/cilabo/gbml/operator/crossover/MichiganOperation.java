@@ -27,7 +27,7 @@ import cilabo.fuzzy.rule.consequent.Consequent;
 import cilabo.fuzzy.rule.consequent.ConsequentFactory;
 import cilabo.gbml.component.replacement.RuleAdditionStyleReplacement;
 import cilabo.gbml.component.variation.MichiganSolutionVariation;
-import cilabo.gbml.operator.heuristic.HeuristicRuleGeneration;
+import cilabo.gbml.operator.heuristic.ruleGeneration.HeuristicRuleGeneration;
 import cilabo.gbml.operator.mutation.MichiganMutation;
 import cilabo.gbml.solution.MichiganSolution;
 import cilabo.gbml.solution.PittsburghSolution;

@@ -19,7 +19,7 @@ import cilabo.fuzzy.knowledge.Knowledge;
 import cilabo.fuzzy.rule.antecedent.Antecedent;
 import cilabo.fuzzy.rule.consequent.ConsequentFactory;
 import cilabo.gbml.objectivefunction.impl.ErrorRateForPittsburgh;
-import cilabo.gbml.operator.heuristic.PatternBaseRuleGeneration;
+import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGeneration;
 import cilabo.gbml.solution.MichiganSolution;
 import cilabo.gbml.solution.PittsburghSolution;
 import cilabo.gbml.solution.util.attribute.ErroredPatternsAttribute;
