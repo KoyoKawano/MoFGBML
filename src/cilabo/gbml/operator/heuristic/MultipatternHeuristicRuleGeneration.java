@@ -2,6 +2,7 @@
 package cilabo.gbml.operator.heuristic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.uma.jmetal.operator.Operator;
@@ -75,25 +76,28 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 				//サポートパターン選択
 				List<Pattern> baseSupportPattern = SelectSupportPattern(basePattern);
 				baseSupportPattern.add(basePattern);
-				
+
 				double[] membershipValueRoulette = new double[knowledge.getFuzzySetNum(n)];
 				double sumMembershipValue = 0.0;
 
 				// Make roulette
+				// don't care value is equal to zero
 				membershipValueRoulette[0] = 0.0;
-				//全てのファジィ集合Aに対して計算
+				// 全てのファジィ集合Aに対して計算
 				for(int f = 1; f < knowledge.getFuzzySetNum(n); f++) {
-					double membershipValue = Double.MAX_VALUE;
 					//全てのルール生成に用いるパターン(base pattern + support pattern)に対して計算
-					for (int p = 0; p < H; p++) {
-						double p_MembershopValue = knowledge.getMembershipValue(baseSupportPattern.get(p).getDimValue(n), n, f);
-						if(p_MembershopValue < membershipValue)
-							membershipValue = p_MembershopValue;
-					}
+					final int _n = n;
+					final int _f = f;
+					double membershipValue = baseSupportPattern
+											.stream()
+											.map(x -> knowledge.getMembershipValue(x.getDimValue(_n), _n, _f))
+											.min(Comparator.naturalOrder()).orElse(-1.0);
+
 					//ファジィ集合Auのメンバシップ値の最小値が0.5以下であれば0.0
 					if(membershipValue <= 0.5) {
 						membershipValue = 0.0;
 					}
+
 					sumMembershipValue += membershipValue;
 					membershipValueRoulette[f] = sumMembershipValue;
 				}
@@ -127,7 +131,7 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 	 */
 	public List<Pattern> SelectSupportPattern(Pattern basePattern){
 		ClassLabel baseClass = basePattern.getTrueClass();
-		
+
 		int candidateNum = (int)train.stream()
 							.filter(x-> x.getTrueClass().getClassLabel() == baseClass.getClassLabel())
 							.count();
@@ -135,7 +139,7 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 		Integer[] randIndexlist = GeneralFunctions.samplingWithout((candidateNum), (candidateNum), Random.getInstance().getGEN());
 		int baseID = basePattern.getID();
 		List<Pattern> supportPattern = new ArrayList<>();
-		for(int i = 0; i < H; i++) {
+		for(int i = 0; i < (H - 1); i++) {
 
 			if(train.get(randIndexlist[i]).getID() != baseID) {
 				supportPattern.add(train.get(randIndexlist[i]));
@@ -147,7 +151,7 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 	public Knowledge getKnowledge() {
 		return this.knowledge;
 	}
-	
+
 	@Override
 	public Antecedent ruleGenerate(Pattern pattern) {
 		return multipatternHeuristicRuleGeneration(pattern);
