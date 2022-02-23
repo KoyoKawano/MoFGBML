@@ -12,6 +12,8 @@ import cilabo.data.DataSet;
 import cilabo.data.Pattern;
 import cilabo.fuzzy.knowledge.Knowledge;
 import cilabo.fuzzy.rule.antecedent.Antecedent;
+import cilabo.gbml.operator.heuristic.select.SameClassAndRandomPattern;
+import cilabo.gbml.operator.heuristic.select.SelectSupportPattern;
 import cilabo.utility.GeneralFunctions;
 import cilabo.utility.Random;
 
@@ -24,10 +26,13 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 
 	ArrayList<Pattern> train;
 
+	SelectSupportPattern selection;
+
 	public MultipatternHeuristicRuleGeneration(Knowledge knowledge, int H, DataSet Train) {
 		this.knowledge = knowledge;
 		this.H = H;
 		this.train = Train.getPatterns();
+		this.selection = new SameClassAndRandomPattern(Train.getPatterns());
 	}
 
 	@Override
@@ -53,13 +58,6 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 	      カバーするファジィ集合がない場合のみ確率0(Don't care)が適用される．
 	*/
 
-	/*
-	以下まだ未完成
-	TODO
-	basepattern からクラスラベルが一致するsupportpatternをランダムに(H-1)個選択
-	ルーレットに使う確率の計算
-	ルーレット選択
-	 */
 	public Antecedent multipatternHeuristicRuleGeneration(Pattern basePattern){
 		/** Number of attribute. */
 		int dimension = basePattern.getInputVector().getVector().length;
@@ -74,7 +72,7 @@ public class MultipatternHeuristicRuleGeneration implements Operator<List<Patter
 			//Numerical Dimension
 			else {
 				//サポートパターン選択
-				List<Pattern> baseSupportPattern = SelectSupportPattern(basePattern);
+				List<Pattern> baseSupportPattern = selection.execute(H, basePattern);
 				baseSupportPattern.add(basePattern);
 
 				double[] membershipValueRoulette = new double[knowledge.getFuzzySetNum(n)];

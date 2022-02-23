@@ -6,5 +6,10 @@ import cilabo.data.Pattern;
 
 public interface SelectSupportPattern {
 
-	List<Pattern> execute(Pattern basePattern);
+	// @param int H : the number of patterns to use heuristic rule generation
+	//                one pattern is base pattern, the other(H-1) patterns are support pattern.
+	//
+	// @param Pattern basePattern
+
+	List<Pattern> execute(int H, Pattern basePattern);
 }
