@@ -29,6 +29,7 @@ import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGeneration;
 import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGenerationBuilder;
 import cilabo.gbml.operator.mutation.MichiganMutation;
 import cilabo.gbml.problem.impl.michigan.ProblemMichiganFGBML;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassWiseThresh;
 import cilabo.main.Consts;
 import cilabo.metric.ErrorRate;
 import cilabo.metric.Metric;
@@ -90,7 +91,7 @@ public class MichiganStyleFGBML_main {
 		/* Run MoFGBML algorithm =============== */
 		DataSet train = datasetManager.getTrains().get(0);
 		DataSet test = datasetManager.getTests().get(0);
-		RuleAdditionMichiganStyleFGBML(train, test, CommandLineArgs.H);
+		MichiganStyleFGBML(train, test, CommandLineArgs.H);
 		/* ===================================== */
 
 		Date end = new Date();
@@ -101,7 +102,7 @@ public class MichiganStyleFGBML_main {
 		System.exit(0);
 	}
 
-		public static void RuleAdditionMichiganStyleFGBML(DataSet train, DataSet test, int H) {
+		public static void MichiganStyleFGBML(DataSet train, DataSet test, int H) {
 			String sep = File.separator;
 
 			// Parameters
@@ -167,6 +168,14 @@ public class MichiganStyleFGBML_main {
 
 			PostProcessing postProcessing = new RemoveNotBeWinnerProcessing(train);
 			postProcessing.postProcess(bestClassifier);
+
+			ClassWiseThresh single = new ClassWiseThresh(200, 0.001, 0.5);
+
+			double[] singleResult = single.estimateThresh(bestClassifier, train.getPatterns());
+
+			for(double s : singleResult) {
+				System.out.println(s);
+			}
 
 			// Test data
 			double errorRate = (double)metric.metric(bestClassifier, test);

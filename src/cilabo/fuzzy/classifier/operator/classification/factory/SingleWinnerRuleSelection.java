@@ -12,7 +12,8 @@ import cilabo.fuzzy.rule.Rule;
 public class SingleWinnerRuleSelection implements Classification {
 	// ************************************************************
 	// Fields
-
+	Integer winnerRuleID;
+	Double confidence;
 	// ************************************************************
 	// Constructor
 
@@ -49,6 +50,8 @@ public class SingleWinnerRuleSelection implements Classification {
 		}
 
 		if(canClassify && max > 0) {
+			winnerRuleID = winner;
+			confidence = max;
 			return ruleSet.get(winner);
 		}
 		else {
@@ -59,6 +62,14 @@ public class SingleWinnerRuleSelection implements Classification {
 	@Override
 	public String toString() {
 		return this.getClass().toString();
+	}
+
+	public Integer getWinnerRuleID() {
+		return winnerRuleID;
+	}
+
+	public Double getConfidence() {
+		return confidence;
 	}
 
 }
