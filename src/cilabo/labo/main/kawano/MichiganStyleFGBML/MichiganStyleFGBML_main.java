@@ -29,7 +29,10 @@ import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGeneration;
 import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGenerationBuilder;
 import cilabo.gbml.operator.mutation.MichiganMutation;
 import cilabo.gbml.problem.impl.michigan.ProblemMichiganFGBML;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassWiseThresh;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassWiseThresholds;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.EstimateThreshold;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.RuleWiseThresholds;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.SingleThreshold;
 import cilabo.main.Consts;
 import cilabo.metric.ErrorRate;
 import cilabo.metric.Metric;
@@ -169,13 +172,41 @@ public class MichiganStyleFGBML_main {
 			PostProcessing postProcessing = new RemoveNotBeWinnerProcessing(train);
 			postProcessing.postProcess(bestClassifier);
 
-			ClassWiseThresh single = new ClassWiseThresh(200, 0.001, 0.5);
 
-			double[] singleResult = single.estimateThresh(bestClassifier, train.getPatterns());
+			int kmax = 200;
+			double deltaT = 0.001;
+			double Rmax = 0.5;
+			SingleThreshold single = new SingleThreshold(bestClassifier, train.getPatterns());
 
-			for(double s : singleResult) {
+			EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
+
+			double[] Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+
+			for(double s : Result) {
 				System.out.println(s);
 			}
+
+			ClassWiseThresholds CWT = new ClassWiseThresholds(bestClassifier, train.getPatterns());
+
+			estimateThreshold = new EstimateThreshold(CWT, kmax, deltaT, Rmax);
+
+			Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+
+			for(double s : Result) {
+				System.out.println(s);
+			}
+
+
+			RuleWiseThresholds RWT = new RuleWiseThresholds(bestClassifier, train.getPatterns());
+
+			estimateThreshold = new EstimateThreshold(RWT, kmax, deltaT, Rmax);
+
+			Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+
+			for(double s : Result) {
+				System.out.println(s);
+			}
+
 
 			// Test data
 			double errorRate = (double)metric.metric(bestClassifier, test);

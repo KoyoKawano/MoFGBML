@@ -127,6 +127,7 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 											.map(x-> (S)(MichiganSolution)x.copy())
 											.collect(Collectors.toList());
 
+
 		DataSet train = ((ProblemMichiganFGBML)problem).getEvaluationDataset();
 		Metric metric = new ErrorRate();
 		minErrorRate = (double)metric
@@ -137,6 +138,7 @@ public class OnePlusOneESMichiganFGBML<S extends Solution<?>> extends AbstractEv
 	    while (!isStoppingConditionReached()) {
 	      matingPopulation = selection(population);
 	      offspringPopulation = reproduction(matingPopulation);
+
 	      population = replacement(population, offspringPopulation);
 	      population = evaluatePopulation(population);
 
