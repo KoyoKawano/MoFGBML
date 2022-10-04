@@ -66,4 +66,8 @@ public class ClassificationDataInfo extends DataSet{
 	public boolean getisRight() {
 		return this.isRight;
 	}
+
+	public Pattern getPattern() {
+		return pattern;
+	}
 }
