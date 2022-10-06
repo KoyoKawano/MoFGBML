@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
-import cilabo.data.Pattern;
+import cilabo.data.DataSet;
 import cilabo.fuzzy.classifier.RuleBasedClassifier;
 import cilabo.fuzzy.rule.RejectedRule;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassificationDataInfo;
@@ -19,12 +19,12 @@ public class TwoStageRejectOption {
 
 	double[] threshold;
 
-	public TwoStageRejectOption(RejectionBase rejectionBase, SecondClassifier secondClassifier, RuleBasedClassifier Classifier, List<Pattern> dataset) {
+	public TwoStageRejectOption(RejectionBase rejectionBase, SecondClassifier secondClassifier, RuleBasedClassifier Classifier, DataSet dataset) {
 
 		this.rejectionBase = rejectionBase;
 		this.secondClassifier = secondClassifier;
 
-		classificationInfo = dataset.stream()
+		classificationInfo = dataset.getPatterns().stream()
 				.map(x-> new ClassificationDataInfo(x, Classifier))
 				.collect(Collectors.toList());
 
@@ -32,9 +32,9 @@ public class TwoStageRejectOption {
 
 	public boolean isReject(ClassificationDataInfo dataInfo) {
 
-		boolean SecondStageJudge = dataInfo.getWinnerRuleClass() != secondClassifier.predict(dataInfo.getPattern()).getClassLabel();
+		boolean isRejectSecondStage = dataInfo.getWinnerRuleClass() != secondClassifier.predict(dataInfo.getPattern()).getClassLabel();
 
-		return rejectionBase.isReject(dataInfo, threshold) && SecondStageJudge;
+		return rejectionBase.isReject(dataInfo, threshold) && isRejectSecondStage;
 	}
 
 	public double culcAcc() {
@@ -68,9 +68,9 @@ public class TwoStageRejectOption {
 		this.threshold = threshold;
 	}
 
-	public void setThreshold(EstimateThreshold estimateThreshold, RuleBasedClassifier Classifier, List<Pattern> dataset) {
+	public void setThreshold(EstimateThreshold estimateThreshold) {
 
-		estimateThreshold.run(Classifier, dataset);
+		estimateThreshold.run();
 		this.threshold = estimateThreshold.getThreshold();
 	}
 }

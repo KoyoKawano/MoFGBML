@@ -1,10 +1,7 @@
 package cilabo.labo.main.kawano.rejectOption.multipleThresh;
 
 import java.util.Arrays;
-import java.util.List;
 
-import cilabo.data.Pattern;
-import cilabo.fuzzy.classifier.RuleBasedClassifier;
 import cilabo.fuzzy.classifier.operator.classification.factory.SingleWinnerRuleSelection;
 
 public class EstimateThreshold {
@@ -35,13 +32,13 @@ public class EstimateThreshold {
 
 
 
-	public double[] run(RuleBasedClassifier Classifier, List<Pattern> dataset) {
+	public double[] run() {
 
 		/*** Initiallization ***/
 
 		RejectOptionMetric metric = new RejectOptionMetric(rejectionBase);
 
-		double[] threshold = metric.initialization();
+		threshold = metric.initialization();
 
 		double[] bestThresh = metric.initialization();
 

@@ -3,7 +3,7 @@ package cilabo.labo.main.kawano.rejectOption.multipleThresh;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import cilabo.data.Pattern;
+import cilabo.data.DataSet;
 import cilabo.fuzzy.classifier.RuleBasedClassifier;
 
 public class RuleWiseThresholds implements RejectionBase{
@@ -14,14 +14,13 @@ public class RuleWiseThresholds implements RejectionBase{
 	int thresholdSize;
 
 
-	public RuleWiseThresholds(RuleBasedClassifier Classifier, List<Pattern> dataset) {
+	public RuleWiseThresholds(RuleBasedClassifier Classifier, DataSet dataset) {
 
-		this.thresholdSize = Classifier.getRuleLength();
+		this.thresholdSize = Classifier.getRuleSet().size();
 
-		this.classificationInfo = dataset.stream()
-				.map(x-> new ClassificationDataInfo(x, Classifier))
+		this.classificationInfo = dataset.getPatterns().stream()
+				.map(x -> new ClassificationDataInfo(x, Classifier))
 				.collect(Collectors.toList());
-
 	}
 
 	public boolean isReject(ClassificationDataInfo DataInfo, double[] threshold) {

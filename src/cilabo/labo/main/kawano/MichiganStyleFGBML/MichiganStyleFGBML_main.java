@@ -199,11 +199,11 @@ public class MichiganStyleFGBML_main {
 //			}
 
 
-			RejectionBase RWT = new RuleWiseThresholds(bestClassifier, train.getPatterns());
+			RejectionBase RWT = new RuleWiseThresholds(bestClassifier, train);
 
 			EstimateThreshold estimateThreshold = new EstimateThreshold(RWT, kmax, deltaT, Rmax);
 
-			double[] Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+			double[] Result = estimateThreshold.run();
 
 			for(double s : Result) {
 				System.out.println(s);
@@ -215,7 +215,7 @@ public class MichiganStyleFGBML_main {
 			TwoStageRejectOption twoStageRejectOption = new TwoStageRejectOption(RWT,
 																				secondClassifier,
 																				bestClassifier,
-																				train.getPatterns());
+																				train);
 
 			twoStageRejectOption.setThreshold(estimateThreshold.getThreshold());
 
