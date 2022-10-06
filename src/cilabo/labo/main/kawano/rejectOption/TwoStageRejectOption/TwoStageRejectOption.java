@@ -32,9 +32,9 @@ public class TwoStageRejectOption {
 
 	public boolean isReject(ClassificationDataInfo dataInfo) {
 
-		boolean SecondStageJudge = dataInfo.getWinnerRuleClass() == secondClassifier.predict(dataInfo.getPattern()).getClassLabel();
+		boolean SecondStageJudge = dataInfo.getWinnerRuleClass() != secondClassifier.predict(dataInfo.getPattern()).getClassLabel();
 
-		return rejectionBase.isReject(dataInfo, threshold) && !SecondStageJudge;
+		return rejectionBase.isReject(dataInfo, threshold) && SecondStageJudge;
 	}
 
 	public double culcAcc() {

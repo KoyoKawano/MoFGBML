@@ -29,10 +29,12 @@ import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGeneration;
 import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGenerationBuilder;
 import cilabo.gbml.operator.mutation.MichiganMutation;
 import cilabo.gbml.problem.impl.michigan.ProblemMichiganFGBML;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassWiseThresholds;
+import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.KNN;
+import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.SecondClassifier;
+import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.TwoStageRejectOption;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.EstimateThreshold;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.RejectionBase;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.RuleWiseThresholds;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.SingleThreshold;
 import cilabo.main.Consts;
 import cilabo.metric.ErrorRate;
 import cilabo.metric.Metric;
@@ -176,9 +178,30 @@ public class MichiganStyleFGBML_main {
 			int kmax = 200;
 			double deltaT = 0.001;
 			double Rmax = 0.5;
-			SingleThreshold single = new SingleThreshold(bestClassifier, train.getPatterns());
+//			SingleThreshold single = new SingleThreshold(bestClassifier, train.getPatterns());
+//
+//			EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
+//
+//			double[] Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+//
+//			for(double s : Result) {
+//				System.out.println(s);
+//			}
+//
+//			ClassWiseThresholds CWT = new ClassWiseThresholds(bestClassifier, train.getPatterns());
+//
+//			estimateThreshold = new EstimateThreshold(CWT, kmax, deltaT, Rmax);
+//
+//			Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+//
+//			for(double s : Result) {
+//				System.out.println(s);
+//			}
 
-			EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
+
+			RejectionBase RWT = new RuleWiseThresholds(bestClassifier, train.getPatterns());
+
+			EstimateThreshold estimateThreshold = new EstimateThreshold(RWT, kmax, deltaT, Rmax);
 
 			double[] Result = estimateThreshold.run(bestClassifier, train.getPatterns());
 
@@ -186,27 +209,18 @@ public class MichiganStyleFGBML_main {
 				System.out.println(s);
 			}
 
-			ClassWiseThresholds CWT = new ClassWiseThresholds(bestClassifier, train.getPatterns());
+			int k = 3;
+			SecondClassifier secondClassifier = new KNN(train, k);
 
-			estimateThreshold = new EstimateThreshold(CWT, kmax, deltaT, Rmax);
+			TwoStageRejectOption twoStageRejectOption = new TwoStageRejectOption(RWT,
+																				secondClassifier,
+																				bestClassifier,
+																				train.getPatterns());
 
-			Result = estimateThreshold.run(bestClassifier, train.getPatterns());
+			twoStageRejectOption.setThreshold(estimateThreshold.getThreshold());
 
-			for(double s : Result) {
-				System.out.println(s);
-			}
-
-
-			RuleWiseThresholds RWT = new RuleWiseThresholds(bestClassifier, train.getPatterns());
-
-			estimateThreshold = new EstimateThreshold(RWT, kmax, deltaT, Rmax);
-
-			Result = estimateThreshold.run(bestClassifier, train.getPatterns());
-
-			for(double s : Result) {
-				System.out.println(s);
-			}
-
+			System.out.println(twoStageRejectOption.culcAcc());
+			System.out.println(twoStageRejectOption.culcRejectOption());
 
 			// Test data
 			double errorRate = (double)metric.metric(bestClassifier, test);

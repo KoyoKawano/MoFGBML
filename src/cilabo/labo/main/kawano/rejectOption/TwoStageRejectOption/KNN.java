@@ -17,7 +17,10 @@ public class KNN implements SecondClassifier{
 	private int k;
 	private DataSet Dtra;
 
-	public KNN() {}
+	public KNN(DataSet Dtra, int k) {
+		setK(k);
+		setDataset(Dtra);
+	}
 
 	public void fit(DataSet Dtra, int k) {
 		setK(k);
@@ -43,7 +46,7 @@ public class KNN implements SecondClassifier{
 
 		List<Integer> argmax = new ArrayList<Integer>();
 
-		for(int i = 0; i < k; i++) {
+		for(int i = 0; i < label.length; i++) {
 
 			if(label[i] == max)
 				argmax.add(i);
