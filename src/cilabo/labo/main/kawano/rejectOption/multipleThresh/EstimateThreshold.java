@@ -42,7 +42,7 @@ public class EstimateThreshold {
 
 		double[] bestThresh = metric.initialization();
 
-		double bestAcc = metric.culcAcc(threshold);
+		double bestAcc = metric.culcAcc(rejectionBase.getClassificationInfo(), threshold);
 
 		double bestReject = 0.0;
 
@@ -64,9 +64,9 @@ public class EstimateThreshold {
 
 					thresh[id] += k * deltaT;
 
-					double acc = metric.culcAcc(thresh);
+					double acc = metric.culcAcc(rejectionBase.getClassificationInfo(), thresh);
 
-					double rej = metric.culcRejectRate(thresh);
+					double rej = metric.culcRejectRate(rejectionBase.getClassificationInfo(), thresh);
 //					System.out.println("acc = " + String.valueOf(acc) + " RR = " + String.valueOf(rej));
 
 					//Rmaxを超えない棄却割合でaccを改善した場合，

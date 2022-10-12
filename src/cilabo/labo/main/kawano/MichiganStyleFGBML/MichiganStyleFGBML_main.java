@@ -126,7 +126,10 @@ public class MichiganStyleFGBML_main {
 																		  problem.getKnowledge(),
 																		  train);
 
-			PatternBaseRuleGeneration ruleGenerateOperator = new PatternBaseRuleGenerationBuilder(H, problem.getKnowledge(), train.getPatterns()).build();
+			PatternBaseRuleGeneration ruleGenerateOperator = new PatternBaseRuleGenerationBuilder(H, 
+																								  problem.getKnowledge(),
+																								  train.getPatterns())
+																								  .build();
 			// Termination
 			Termination termination = new TerminationByEvaluations(Consts.populationSize + Consts.terminateGeneration * Consts.offspringPopulationSize);
 			// Variation

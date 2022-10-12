@@ -33,4 +33,5 @@ public class SingleThreshold implements RejectionBase{
 	public int getThresholdSize() {
 		return this.thresholdSize;
 	}
+
 }
