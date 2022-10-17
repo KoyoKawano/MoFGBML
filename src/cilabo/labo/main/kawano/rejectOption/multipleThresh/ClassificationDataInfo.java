@@ -47,6 +47,15 @@ public class ClassificationDataInfo extends DataSet{
 		}
 	}
 
+	public String toString() {
+
+		String str = this.pattern.toString();
+		str += ", conf :" + String.valueOf(confidenceValue);
+		str += ", TorF : " + String.valueOf(this.isRight);
+
+		return str;
+ 	}
+
 	public Double getConfidenceValue() {
 		return this.confidenceValue;
 	}

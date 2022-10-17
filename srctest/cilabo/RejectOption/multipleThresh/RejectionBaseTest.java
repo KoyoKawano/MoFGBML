@@ -25,7 +25,6 @@ import cilabo.labo.main.kawano.rejectOption.multipleThresh.SingleThreshold;
 import cilabo.utility.Input;
 
 public class RejectionBaseTest {
-
 	@Test
 	public static void multipleThresholdTest() {
 
@@ -86,7 +85,7 @@ public class RejectionBaseTest {
 			ruleBasedClassifier.addRule(rule);
 		}
 
-		int kmax = 200;
+		int kmax = 500;
 		double deltaT = 0.001;
 		double Rmax = 0.5;
 
@@ -98,7 +97,7 @@ public class RejectionBaseTest {
 
 		double diff = 0.0001;
 
-		assertEquals(expected[0], 0.957446808510638, diff);
-		assertEquals(expected[1], 0.216666666666666, diff);
+		assertEquals(expected[0], 1.0, diff);
+		assertEquals(expected[1], 0.116666666666666, diff);
 	}
 }

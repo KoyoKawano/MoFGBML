@@ -3,6 +3,7 @@ package cilabo.labo.main.kawano.tryCode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 import cilabo.data.DataSet;
 import cilabo.fuzzy.classifier.RuleBasedClassifier;
@@ -15,8 +16,10 @@ import cilabo.fuzzy.rule.antecedent.Antecedent;
 import cilabo.fuzzy.rule.consequent.Consequent;
 import cilabo.fuzzy.rule.consequent.ConsequentFactory;
 import cilabo.fuzzy.rule.consequent.factory.MoFGBML_Learning;
-import cilabo.labo.main.kawano.rejectOption.Confidence.Confidence;
-import cilabo.labo.main.kawano.rejectOption.Confidence.FirstAndSecondClass;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.EstimateThreshold;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.RejectionBase;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.RuleWiseThresholds;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.SingleThreshold;
 import cilabo.utility.Input;
 
 public class Try {
@@ -56,10 +59,26 @@ public class Try {
 				.antecedentIndex(new int[] {5, 0})
 				.build();
 
+
+//		Antecedent[] antecedents = new Antecedent[3];
+//		antecedents[0] = Antecedent.builder()
+//				.knowledge(knowledge)
+//				.antecedentIndex(new int[] {0, 3})
+//				.build();
+//		antecedents[1] = Antecedent.builder()
+//				.knowledge(knowledge)
+//				.antecedentIndex(new int[] {0, 5})
+//				.build();
+//
+//		antecedents[2] = Antecedent.builder()
+//				.knowledge(knowledge)
+//				.antecedentIndex(new int[] {5, 0})
+//				.build();
+
 		ConsequentFactory consequentFactory = new MoFGBML_Learning(train);
 
-		List<Rule> ruleSet = new ArrayList<Rule>()
-;
+		List<Rule> ruleSet = new ArrayList<Rule>();
+
 		for(Antecedent antecedent : antecedents) {
 
 			Consequent consequent = consequentFactory.learning(antecedent);
@@ -76,13 +95,34 @@ public class Try {
 
 		ruleBasedClassifier.setClassification(new SingleWinnerRuleSelection());
 
+
 		for(Rule rule : ruleSet) {
 			ruleBasedClassifier.addRule(rule);
 		}
 
-		Confidence confidence = new FirstAndSecondClass();
+		int kmax = 300;
+		double deltaT = 0.001;
+		double Rmax = 0.1;
 
-		System.out.println(confidence.confidence(ruleBasedClassifier, train.getPattern(0).getInputVector()));
+		RejectionBase single = new SingleThreshold(ruleBasedClassifier, train);
+
+		EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
+
+		double[] expected = estimateThreshold.run();
+
+		RejectionBase cwt = new RuleWiseThresholds(ruleBasedClassifier, train);
+
+		EstimateThreshold estimateClassWiseThresholds = new EstimateThreshold(cwt, kmax, deltaT, Rmax);
+
+		expected = estimateClassWiseThresholds.run();
+
+		double[] T = estimateClassWiseThresholds.getThreshold();
+
+		DoubleStream.of(T).forEach(System.out::println);
+
+		System.out.println(expected[0]);
+		System.out.println(expected[1]);
+
 	}
 
 }
