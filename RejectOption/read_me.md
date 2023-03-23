@@ -1,4 +1,4 @@
-# Reject Option-v2
+# Reject Option
 
 引継ぎ用コードです．
 RejectOption-master_paperは修士論文で使用したコードで，プロット用のコードやバッチファイルが入ってますが，引継ぎでは排除しています．
