@@ -8,9 +8,17 @@
 """
 
 from CIlab_FuzzyFunction import FuzzyFunction
+from CIlab_function import CIlab
+from ThresholdOptimization import predict_proba_transformer
+from Runner import runner
+from sklearn.neighbors import KNeighborsClassifier
+from ThresholdBaseRejection import SingleThreshold, ClassWiseThreshold, RuleWiseThreshold, SecondStageRejectOption
+from ThresholdOptimization import ThresholdEstimator
 import numpy as np
 import pandas as pd
 from sklearn.base import ClassifierMixin
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import ParameterGrid
 from matplotlib import pyplot as plt
 
 
@@ -294,7 +302,12 @@ class FuzzyClassifier(ClassifierMixin):
     def score(self, X, y):
 
         return len(X[self.predict(X) == y]) / len(X)
-
+    
+    
+    def transform(self, X):
+        
+        return np.array(X)
+    
     
     def to_dataFrame(self):
         
@@ -346,7 +359,9 @@ class FuzzyClassifier(ClassifierMixin):
 
         for i in range(len(self.ruleset[0].antecedent)):
             
+            # plt.subplots_adjust(wspace=1, hspace=0.3)
             fig, axes = plt.subplots(nrows=nrows, ncols=1, squeeze=False, tight_layout=True)
+            # fig.suptitle(f'attribute{i}', fontsize = 10)
 
             for ruleID, Fuzzyset in enumerate(df[f"antecedent{i}"]):
             
@@ -368,5 +383,97 @@ class FuzzyClassifier(ClassifierMixin):
                 plt.show()
         return
         
- 
     
+    
+def program_experiment_3():
+    
+    fname_train = "..\\dataset\\cilabo\\kadai5_pattern1.txt"
+    
+    fname_test = "..\\dataset\\cilabo\\kadai5_pattern1.txt"
+    
+    X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, "numpy")
+    
+    
+    fuzzyset_ID = [i for i in range(28)]
+    
+    ruleset = [Rule([i, j]).culc_conseqent(X_train, y_train) for i in fuzzyset_ID for j in fuzzyset_ID]
+    
+    ruleset = list(filter(lambda x : x.CF > 0, ruleset))
+    
+    fuzzyClassifier = FuzzyClassifier(ruleset)
+    
+    print(fuzzyClassifier.get_mean_rule_length())
+    
+    
+# program_experiment_3()
+    
+def experiment_3():
+    
+    fname_train = "..\\dataset\\cilabo\\kadai5_pattern1.txt"
+    
+    fname_test = "..\\dataset\\cilabo\\kadai5_pattern1.txt"
+    
+    X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, "numpy")
+    
+    
+    
+    antecedent_list = [[0, 5],
+                        [3, 4],
+                        [4, 3],
+                        [4, 4],
+                        [5, 0]]
+    
+    ruleset = [Rule(antecedent).culc_conseqent(X_train, y_train) for antecedent in antecedent_list]
+    
+    fuzzyClassifier = FuzzyClassifier(ruleset)
+    
+    fuzzyClassifier = fuzzyClassifier.winner_count(X_train)
+    
+    print(fuzzyClassifier.score(X_train, y_train))
+    
+    
+    
+    
+if  __name__ == "__main__":
+    
+    experiment_3()
+    
+    # dataset = "pima"
+    
+    # fname_train = f"../dataset/{dataset}/a0_0_{dataset}-10tra.dat"
+                 
+    
+    # fname_test = f"../dataset/{dataset}/a0_0_{dataset}-10tst.dat"
+    
+    
+    # X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, "numpy")
+    
+    # run = runner(dataset, "RO-test", "trial00-v2", fname_train, fname_test)
+    
+    # rr = 0
+    # cc = 0
+    
+    # fuzzy_cl = f"../results/MoFGBML_Basic/{dataset}/trial{rr}{cc}/VAR-0000600000.csv"
+    
+    
+    # fuzzyClassifier = FuzzyClassifier()
+    
+    
+    # best_model = fuzzyClassifier
+    
+    # param = {"kmax" : [200], "Rmax" : [0], "deltaT" : [0.001]}
+    
+    # # pipe = Pipeline(steps = [('predict_proba_transform', predict_proba_transformer(best_model)),
+    # #                           ('estimator', ClassWiseThreshold())])
+    
+    # pipe = Pipeline(steps = [('predict_proba_transform', predict_proba_transformer(best_model, base = "rule")),
+    #                           ('estimator', RuleWiseThreshold(best_model.ruleset))])
+    
+    
+    # second_model = KNeighborsClassifier()
+    
+    # thresh_estimator = ThresholdEstimator(pipe, param)
+    
+    # second_RO = SecondStageRejectOption(thresh_estimator, second_model)
+    
+    # run.run_second_stage(pipe, ParameterGrid(param), second_model, "train-rule.csv", "test-rule.csv")

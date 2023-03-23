@@ -80,7 +80,6 @@ class CIlab():
         
         return
     
-    @staticmethod
     def output_cilab_style_dataset(X, y, output_dir, fname):
         
         header = f"{len(X)}, {len(X[0])}, {max(y) + 1}"

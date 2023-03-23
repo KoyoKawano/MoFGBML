@@ -43,7 +43,7 @@ class ThresholdEstimator():
         """
         パイプラインに適用させた後，self.paramに従い閾値の探索を行う．
         """
-        # self.pipe.fit(X, y)
+        self.pipe.fit(X, y)
         
         self._run_search(X, y)
         
@@ -75,7 +75,7 @@ class ThresholdEstimator():
             
         self.threshold = self.pipe[-1].zeros_threshold(y)
         
-        self.predict_proba_ = self.pipe[0].predict_proba
+        self.predict_proba_ = self.pipe.transform(X)
       
         self.predict_ = self.pipe[-1].predict(self.predict_proba_, reject_option = False)
         
@@ -135,19 +135,6 @@ class ThresholdEstimator():
         
         return self
             
-    def proba_score(self, y, predict, isReject):
-    
-        len_accept = np.count_nonzero(~isReject)
-        
-        # if all patterns are rejected, accuracy is 1.0
-        accuracy = 1.0
-        
-        if len_accept != 0:
-            
-            accuracy = self.pipe[-1].accuracy(y, predict, isReject)
-        
-        return {"accuracy" : accuracy,
-                "rejectrate" : self.pipe[-1].rejectrate(isReject)}
     
     def score(self, X, y, threshold = None):
         
@@ -186,11 +173,6 @@ class ThresholdEstimator():
         return self.pipe[-1].isReject(predict_proba_, self.threshold)
 
 
-    def proba_isReject(self, predict_proba):
-        
-        return self.pipe[-1].isReject(predict_proba, self.threshold)
-    
-    
 class predict_proba_transformer():
     
     """
@@ -225,8 +207,6 @@ class predict_proba_transformer():
         
         self.model.fit(X, y)
         
-        self.transform(X)
-        
         return self
     
     
@@ -236,9 +216,13 @@ class predict_proba_transformer():
              
              return self.model.predict_proba(X, base = self.base)
          
-         self.predict_proba = self.model.predict_proba(X)
+         predict_proba_ = self.model.predict_proba(X)
+         
+         # for proba in predict_proba_:
              
-         return self.predict_proba
+         #     proba[np.argmin(proba)] = 0
+             
+         return predict_proba_
      
         
   

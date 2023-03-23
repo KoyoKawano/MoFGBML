@@ -113,7 +113,7 @@ class ThresholdBaseRejectOption():
         return self
         
     
-    def predict(self, predict_proba_, reject_option = False):
+    def predict(self, predict_proba_, reject_option = True):
         
         """
         入力に対して，棄却する場合はNone，確信度が高い場合は予測ラベルを返す関数
@@ -259,7 +259,7 @@ class RuleWiseThreshold(ThresholdBaseRejectOption):
         return np.array([self.ruleset[np.argmax(proba)].class_label if not all(proba == 0) else None for proba in predict_proba_])
 
 
-class SecondStageRejectOption(ThresholdBaseRejectOption):
+class SecondStageRejectOption():
     
     """  
     ThresholdBaseRejectoptionでは，パターンの確信度と閾値から，棄却の判定を行うが，
@@ -283,42 +283,39 @@ class SecondStageRejectOption(ThresholdBaseRejectOption):
         self.second_classifier = second_classifier
         
         
-    def isReject(self, predict_proba, second_predict, threshold = None):
-            
+    def isReject(self, X, threshold):
+        
+        predict_proba_ = self.thresh_estimator.pipe.transform(X)
+        
+        predict_ = self.thresh_estimator.pipe[-1].predict(predict_proba_, reject_option = False)
+        
+        return self.thresh_estimator.pipe[-1].isReject(predict_proba_, threshold) & (self.second_classifier.predict(X) != predict_)
+    
+    
+    def accuracy(self, X, y, threshold = None):
+        
         if threshold == None:
             
             threshold = self.thresh_estimator.threshold
-          
-        base_predict = self.thresh_estimator.pipe[-1].predict(predict_proba, reject_option = False)
-        
-        return self.thresh_estimator.pipe[-1].isReject(predict_proba, threshold) & (base_predict != second_predict)
-    
-    
-    
-    # def accuracy(self, X, y, threshold = None):
-        
-    #     if threshold == None:
             
-    #         threshold = self.thresh_estimator.threshold
+        isReject = self.isReject(X, threshold)
+        
+        # if all patterns are rejected, accuracy is 1.0
+        len_accept = np.count_nonzero(~isReject)
+        
+        if len_accept == 0:
             
-    #     isReject = self.isReject(X, threshold)
+            return 1.0
         
-    #     # if all patterns are rejected, accuracy is 1.0
-    #     len_accept = np.count_nonzero(~isReject)
-        
-    #     if len_accept == 0:
-            
-    #         return 1.0
-        
-    #     predict_ = self.thresh_estimator.pipe[0].model.predict(X[~isReject])
+        predict_ = self.thresh_estimator.pipe[0].model.predict(X[~isReject])
 
-    #     return np.count_nonzero(predict_ == y[~isReject]) / len_accept
+        return np.count_nonzero(predict_ == y[~isReject]) / len_accept
     
     
-    # def rejectrate(self, X, threshold = None):
+    def rejectrate(self, X, threshold = None):
         
-    #     if threshold == None:
+        if threshold == None:
             
-    #         threshold = self.thresh_estimator.threshold
+            threshold = self.thresh_estimator.threshold
         
-    #     return np.count_nonzero(self.isReject(X, threshold)) / len(X)
+        return np.count_nonzero(self.isReject(X, threshold)) / len(X)

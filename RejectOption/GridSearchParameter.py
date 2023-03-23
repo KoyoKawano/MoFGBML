@@ -121,28 +121,3 @@ class GridSearch():
             return gscv.best_estimator_
         
         return model
-    
-    # def load_parameter_gs_results(fname):
-        
-    #     df = pd.read_csv(fname)
-        
-    #     return
-    
-    
-if __name__ == "__main__":
-    
-    
-    
-    # algorithm = "GaussianProcess"
-    
-    # dataset = "pima"
-    
-    # fname_train = f"..\\dataset\\{dataset}\\a0_0_{dataset}-10tra.dat"
-                 
-    # fname_test = f"..\\dataset\\{dataset}\\a0_0_{dataset}-10tst.dat"
-   
-    # X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, "numpy")
-   
-    # model = GridSearch.run_grid_search(algorithm, X_train, y_train)
-    pass
-

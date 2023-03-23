@@ -4,9 +4,8 @@ Created on Thu Feb  2 13:12:54 2023
 
 @author: kawano
 """
-from functools import reduce 
 import numpy as np
-from RejectorModel import Rejector, ResampledTransformer 
+from RejectorModel import ResampledTransformer 
 from CIlab_function import CIlab
 from GridSearchParameter import GridSearch
 import sys
@@ -48,35 +47,7 @@ class EnsembleRejectorModel():
         
         return X[~reject_index], y[~reject_index]
         
-        
-    
-    
 
-def make_dataset():
-    
-    args = sys.argv
-    
-    dataset, algorithmID, experimentID, fname_train, fname_test = args[1:]
-    
-    X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, type_ = "numpy")
-    
-    models_name = ["Adaboost", "DecisionTree", "NaiveBayes", "GaussianProcess", "kNN", "MLP", "RF", "LinearSVC", "RBFSVC"]
-    
-    output_dir = f"../results/{algorithmID}/{dataset}/"
-    
-    models = [GridSearch.run_grid_search(model, X_train, y_train, f"{output_dir}/{model}/", f"gs_result_{experimentID}.csv") for model in models_name]
-    
-    rejector = EnsembleRejectorModel(models)
-    
-    rejector.fit(X_train, y_train)
-    
-    X_new, y_new = rejector.transform(X_train, y_train)
-    
-    trial = list(experimentID)
-    
-    fname = f"a{trial[5]}_{trial[6]}_{dataset}-10tra.dat"
-    
-    CIlab.output_cilab_style_dataset(X_new, y_new, output_dir, fname)
 
     
 def main():
@@ -109,28 +80,5 @@ def main():
 if __name__ == "__main__" :
     
     main()
-    
-    # dataset = "australian"
-    
-    # rr = 0
-    # cc = 2
-    
-    # fname_train = f"..\\dataset\\{dataset}\\a{rr}_{cc}_{dataset}-10tra.dat"
-                 
-    # fname_test = f"..\\dataset\\{dataset}\\a{rr}_{cc}_{dataset}-10tst.dat"
-    
-    # output = "../results/test/"
-    # X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, type_ = "numpy")
-    
-    # models_name = ["Adaboost", "DecisionTree", "NaiveBayes", "GaussianProcess", "kNN", "MLP", "RF", "LinearSVC", "RBFSVC"]
-    
-    # models = [GridSearch.run_grid_search(model, X_train, y_train, f"{output}/{model}/", f"gs_result_{model}.csv") for model in models_name]
-    
-    # rejector = EnsembleRejectorModel(models)
-    
-    # rejector.fit(X_train, y_train)
-    
-    # X_new, y_new = rejector.transform(X_train, y_train)
-    
-    # CIlab.output_cilab_style_dataset(X_new, y_new, output, f"a{rr}_{cc}_{dataset}-10tra.dat")
+
 

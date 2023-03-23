@@ -1,5 +1,8 @@
-# Reject Option
+# Reject Option-v2
 
+引継ぎ用コードです．
+RejectOption-master_paperは修士論文で使用したコードで，プロット用のコードやバッチファイルが入ってますが，引継ぎでは排除しています．
+また，閾値ベースのコードが格段に早くなっているので，こちらを使うことを推奨します．
 ## threshold based rejection
 main_thresholdを使用してください．
 コマンドライン引数は以下の通り．

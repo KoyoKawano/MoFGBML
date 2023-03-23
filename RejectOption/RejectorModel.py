@@ -9,15 +9,10 @@ Created on Mon Dec 26 14:15:13 2022
 リサンプル後のデータセットを出力する必要あり．
 リサンプル後のデータセットは従来も再学習も同様のリジェクターを使う
 """
-# from sklearn.neighbors import KNeighborsClassifier
 from CIlab_function import CIlab
 import numpy as np
 from imblearn.over_sampling import ADASYN
-from MyDataset import DatasetMaker
-from GridSearchParameter import GridSearch
-from FuzzyClassifierFromCSV import FileInput
-import sys
-from sklearn.neighbors import KNeighborsClassifier
+
 
 class ResampledTransformer():
     
@@ -101,99 +96,5 @@ class Rejector():
         return self.predict(X) == -1
 
     
-        
-def main_mofgbml():
-    
-    args = sys.argv
-    
-    dataset, algorithmID, experimentID, fname_train, fname_test, clf_name = args[1:]
-    
-    X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, type_ = "numpy")
 
-    base_model = FileInput.best_classifier(clf_name, X_train, y_train)
-
-    resample_transformer = ResampledTransformer(base_model)
-    
-    X_resampled, y_resampled = resample_transformer.transform(X_train, y_train)
-    
-    output_dir = f"../results/resampled_dataset/{algorithmID}/{dataset}/"
-    
-    trial = list(experimentID)
-    
-    fname = f"a{trial[5]}_{trial[6]}_{dataset}-10tra.dat"
-    
-    resample_transformer.output(X_resampled, y_resampled, output_dir, fname)
-    
-    
-def main_sklearn():
-    
-    args = sys.argv
-    
-    dataset, algorithmID, experimentID, fname_train, fname_test = args[1:]
-    
-    X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, type_ = "numpy")
-    
-    output_dir = f"../results/resampled_dataset/{algorithmID}/{dataset}/"
-    
-    base_model = GridSearch.run_grid_search(algorithmID, X_train, y_train, output_dir + experimentID + "/", f"gs_result_{algorithmID}.csv")
-
-    resample_transformer = ResampledTransformer(base_model)
-    
-    X_resampled, y_resampled = resample_transformer.transform(X_train, y_train)
-    
-    trial = list(experimentID)
-    
-    fname = f"a{trial[5]}_{trial[6]}_{dataset}-10tra.dat"
-    
-    resample_transformer.output(X_resampled, y_resampled, output_dir, fname)
-
-
-if __name__ == "__main__" :
-        
-    # main_mofgbml()
-    
-    X, y = DatasetMaker().make_dataset(n_samples = 200, class_sep = 1.5, scale = 1)
-    
-    DatasetMaker().plot_2d_dataset(X, y)
-    
-    rejector_model = KNeighborsClassifier(n_neighbors = 3)
-    
-    rejector = Rejector(rejector_model)
-    
-    base_model = KNeighborsClassifier(n_neighbors = 3)
-    
-    rejectorBasedRejectOption = RejectorBasedRejectOption(rejector, base_model).fit(X, y)
-    
-    # print(base_model.fit(X, y).score(X, y))
-
-    # print(rejectorBasedRejectOption.accuracy(X, y))
-    
-    # print(rejectorBasedRejectOption.rejectrate(X))
-    
-    
-    # dataset = "vehicle"
-    
-    # rr = 2
-    # cc = 9
-    
-    # fname_train = f"..\\dataset\\{dataset}\\a{rr}_{cc}_{dataset}-10tra.dat"
-                 
-    # fname_test = f"..\\dataset\\{dataset}\\a{rr}_{cc}_{dataset}-10tst.dat"
-    
-    
-    # X_train, X_test, y_train, y_test = CIlab.load_train_test(fname_train, fname_test, type_ = "numpy")
-
-    # base_model = FileInput.best_classifier(f"../results/MoFGBML_Basic/{dataset}/trial{rr}{cc}/VAR-0000600000.csv", X_train, y_train)
-    
-    # resample_transformer = ResampledTransformer(base_model)
-    
-    # X_resampled, y_resampled = resample_transformer.transform(X_train, y_train)
-    
-    # trial = list(f"trial{rr}{cc}")
-    
-    # fname = f"a{trial[5]}_{trial[6]}_{dataset}-10tra.dat"
-    
-    # output_dir = f"../results/resampled_dataset/MoFGBML_Basic/{dataset}/"
-    
-    # resample_transformer.output(X_resampled, y_resampled, output_dir, fname)
         

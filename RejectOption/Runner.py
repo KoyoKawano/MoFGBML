@@ -5,16 +5,12 @@ Created on Mon Dec 12 19:06:50 2022
 @author: kawano
 """
 from joblib import Parallel, delayed
-from ThresholdBaseRejection import SecondStageRejectOption
 from CIlab_function import CIlab
-from ThresholdOptimization import ThresholdEstimator
+from ThresholdOptimization import ThresholdEstimator, predict_proba_transformer
 import file_output as output
-from GridSearchParameter import GridSearch
-import copy
+from ThresholdBaseRejection import SecondStageRejectOption
 
 class runner():
-    
-
     
     def __init__(self,
                  dataset,
@@ -52,85 +48,11 @@ class runner():
         self.output_dir = f"../results/threshold_base/{self.algorithmID}/{self.dataset}/{self.experimentID}/"
     
     
-    # def grid_search(self, model, param, cv = 10):
-        
-    #     """
-    #     grid_search function
-    #     ハイパーパラメータをグリッドサーチにより決定し，best_modelを返す．
-        
-    #     Parameter
-    #     ---------
-    #     model : sklearn.classifier
-        
-    #     param : ハイパーパラメータの辞書のリスト
-        
-    #     cv : the number of CV, default is 10
-    #     """
-        
-    #     gscv = GridSearchCV(model, param, cv = cv, verbose = 0)
-        
-    #     gscv.fit(self.X_train, self.y_train)
-        
-    #     gs_result = pd.DataFrame.from_dict(gscv.cv_results_)
-        
-    #     if not os.path.exists(self.output_dir):
-        
-    #         os.makedirs(self.output_dir)
-        
-    #     gs_result.to_csv(self.output_dir + 'gs_result.csv')
-        
-    #     CIlab.output_dict(gscv.best_estimator_.get_params(), self.output_dir, "best_model_info.txt")
-        
-    #     return gscv.best_estimator_
-    
-    
-           
-    # def run(self, pipe, params, train_file, test_file, core = 4):
-        
-    #     """
-    #     run function
-    #     ARCs(Accuracy-Rejection Curves)で必要なデータを出力する関数.
-        
-    #     Parameter
-    #     ---------
-    #     pipe : Pipeline module
-    #            ステップ：predict_proba_transfomer，ThresholdBaseRejectOption
-        
-    #     params : パラメータ辞書のリスト, 
-    #              辞書のキーは，"kmax", "Rmax", "deltaT"にしてください．
-        
-    #     train_file : file name of result for trainning data, result is accuracy, reject rate, threshold
-        
-    #     test_file : file name of result for test data
-    #     """
-        
-    #     def _run_one_param(param):
-            
-    #         return ThresholdEstimator(pipe, param).fit(self.X_train, self.y_train)
- 
-        
-    #     # result_list = Parallel(n_jobs = core)(delayed(_run_one_param)(param) for param in params)
-        
-    #     result_list = [_run_one_param(param) for param in params]
-        
-    #     train_result = [[result.accuracy, result.rejectrate, result.threshold] for result in result_list]
-        
-    #     output.to_csv(train_result, self.output_dir, train_file)
-        
-    #     test_result = [result.score(self.X_test, self.y_test) for result in result_list]
-           
-    #     output.to_csv(test_result, self.output_dir, test_file)
-        
-    #     return
-    
-    
     def run_second_stage(self, pipe, params, second_models, train_file, test_file, core = 5):
         
         """
         run function
         2段階棄却オプションのARCs(Accuracy-Rejection Curves)で必要なデータを出力する関数.
-        ベース識別器がファジィ識別機以外だとエラーを起こすので注意！
-        他のモデルを使用する際は，ルール数の計算をしないようにしてください．
         
         Parameter
         ---------
@@ -151,97 +73,55 @@ class runner():
         
         def _run_one_search_threshold(param):
             
-            return ThresholdEstimator(copy.deepcopy(pipe), param).fit(self.X_train, self.y_train)
+            return ThresholdEstimator(pipe, param).fit(self.X_train, self.y_train)
  
         
-        # 閾値の探索
+        # 閾値の探索,ここだけ並列処理をしています．
+        result_list = Parallel(n_jobs = core)(delayed(_run_one_search_threshold)(param) for param in params)
         
-        # result_list = Parallel(n_jobs = core)(delayed(_run_one_search_threshold)(param) for param in params)
-        result_list = [_run_one_search_threshold(param) for param in params]
-
-        train_score_result = [result.score(self.X_train, self.y_train) for result in result_list]
         # 学習用データの結果をまとめて出力
-        train_result = [[score["accuracy"],
-                         score["rejectrate"],
-                         result.pipe[0].model.get_ruleNum(winner = True),
-                         result.threshold]\
-                         for result, score in zip(result_list, train_score_result)]
+        train_result = [[result.accuracy, result.rejectrate, result.threshold] for result in result_list]
         
         output.to_csv(train_result, self.output_dir, train_file)
         
+        proba_test = predict_proba_transformer(result_list[0].pipe[0].model).transform(self.X_test)
+        base_predict_test = result_list[0].pipe[-1].predict(proba_test)
+        isReject_list = [result.proba_isReject(proba_test) for result in result_list]
+  
         # 評価用データの結果をまとめて出力
-        test_score_result = [result.score(self.X_test, self.y_test) for result in result_list]
+        test_result = [result_list[0].proba_score(self.y_test, base_predict_test, isReject) for isReject in isReject_list]
            
-        test_result = [[score["accuracy"],
-                       score["rejectrate"],
-                       result.pipe[0].model.get_ruleNum(winner = True),
-                       result.threshold]\
-                       for result, score in zip(result_list, test_score_result)]
-        
         output.to_csv(test_result, self.output_dir, test_file)
         
+        proba_train = result_list[0].pipe[0].predict_proba
+        base_predict_train = result_list[0].pipe[-1].predict(proba_train)
         
         # 2段階棄却オプション，やってることは上と同じ
-        for second_model in second_models:
+        for key, model in second_models.items():
             
-            model = GridSearch.run_grid_search(second_model,self.X_train, self.y_train, f"{self.output_dir}/{second_model}/", f"gs_result_{second_model}.csv")
+            model_predict = model.predict(self.X_train)
+            
+            RO_list = [SecondStageRejectOption(thresh_estimator, model) for thresh_estimator in result_list]
+            
+            isReject_list = [RO.isReject(proba_train, model_predict) for RO in RO_list]
 
-            model.fit(self.X_train, self.y_train)
+            second_RO_train_result = [[RO.accuracy(self.y_train, base_predict_train, isReject),
+                                       RO.rejectrate(isReject)] for RO, isReject in zip(RO_list, isReject_list)]
             
-            second_RO_list = [SecondStageRejectOption(thresh_estimator, model) for thresh_estimator in result_list]
+            output.to_csv(second_RO_train_result, f"{self.output_dir}/{key}/", "second-" + train_file)
             
-            second_RO_train_result = [[second_RO.accuracy(self.X_train, self.y_train),
-                                       second_RO.rejectrate(self.X_train),
-                                       second_RO.thresh_estimator.pipe[0].model.get_ruleNum(winner = True),
-                                       second_RO.thresh_estimator.threshold]\
-                                       for second_RO in second_RO_list]
+            model_predict = model.predict(self.X_test)
             
-            output.to_csv(second_RO_train_result, f"{self.output_dir}/{second_model}/", "second-" + train_file)
             
-            second_RO_test_result = [[second_RO.accuracy(self.X_test, self.y_test),
-                                      second_RO.rejectrate(self.X_test),
-                                      second_RO.thresh_estimator.pipe[0].model.get_ruleNum(winner = True),
-                                      second_RO.thresh_estimator.threshold] \
-                                      for second_RO in second_RO_list]
-            
-            output.to_csv(second_RO_test_result, f"{self.output_dir}/{second_model}/", "second-" + test_file)
+            isReject_list = [RO.isReject(proba_test, model_predict) for RO in RO_list]
+
+            second_RO_test_result = [[RO.accuracy(self.y_test, base_predict_test, isReject),
+                                       RO.rejectrate(isReject)] for RO, isReject in zip(RO_list, isReject_list)]
+          
+            output.to_csv(second_RO_test_result, f"{self.output_dir}/{key}/", "second-" + test_file)
             
         
     def output_const(self, dict_):
         
         CIlab.output_dict(dict_, self.output_dir, "Const.txt")
     
-    
-def main():
-    
-    return
-    # dataset = "pima"
-    
-    # param = {"max_depth" : [5, 10, 20]}
-    
-    # model = DecisionTreeClassifier()
-    
-    # run = runner(dataset,
-    #              "RO-test",
-    #              "trial00-v2",
-    #              f"..\\dataset\\{dataset}\\a0_0_{dataset}-10tra.dat",
-    #              f"..\\dataset\\{dataset}\\a0_0_{dataset}-10tst.dat")
-   
-    
-    # best_model = run.grid_search(model, param)
-
-
-    # param = {"kmax" : [700], "Rmax" : [0.5], "deltaT" : [0.001]}
-    
-    # pipe = Pipeline(steps = [('predict_proba_transform', predict_proba_transformer(best_model)),
-    #                           ('estimator', ClassWiseThreshold())])
-    
-    
-    # second_model = KNeighborsClassifier()
-    
-    # run.run_second_stage(pipe, ParameterGrid(param), second_model, "train_gomi.csv", "test_gomi.csv")
-    
-    
-if __name__ == "__main__":
-    
-    main()
