@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,14 +20,16 @@ import cilabo.fuzzy.rule.antecedent.Antecedent;
 import cilabo.fuzzy.rule.consequent.Consequent;
 import cilabo.fuzzy.rule.consequent.ConsequentFactory;
 import cilabo.fuzzy.rule.consequent.factory.MoFGBML_Learning;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassificationDataInfo;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.EstimateThreshold;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.RejectionBase;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.SingleThreshold;
 import cilabo.utility.Input;
 
 public class RejectionBaseTest {
+
 	@Test
-	public static void multipleThresholdTest() {
+	public void multipleThresholdTest() {
 
 		String sep = File.separator;
 		String dataName = "dataset" + sep + "cilabo" + sep + "kadai5_pattern1.txt";
@@ -89,11 +92,14 @@ public class RejectionBaseTest {
 		double deltaT = 0.001;
 		double Rmax = 0.5;
 
-		RejectionBase single = new SingleThreshold(ruleBasedClassifier, train);
-		EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
+		List<ClassificationDataInfo> trainInfo = train.getPatterns().stream()
+				.map(x-> new ClassificationDataInfo(x, ruleBasedClassifier))
+				.collect(Collectors.toList());
+
+		RejectionBase single = new SingleThreshold();
+		EstimateThreshold estimateThreshold = new EstimateThreshold(trainInfo, single, kmax, deltaT, Rmax);
 
 		double[] expected = estimateThreshold.run();
-
 
 		double diff = 0.0001;
 

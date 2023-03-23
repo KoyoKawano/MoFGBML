@@ -29,12 +29,6 @@ import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGeneration;
 import cilabo.gbml.operator.heuristic.ruleGeneration.PatternBaseRuleGenerationBuilder;
 import cilabo.gbml.operator.mutation.MichiganMutation;
 import cilabo.gbml.problem.impl.michigan.ProblemMichiganFGBML;
-import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.KNN;
-import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.SecondClassifier;
-import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.TwoStageRejectOption;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.EstimateThreshold;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.RejectionBase;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.RuleWiseThresholds;
 import cilabo.main.Consts;
 import cilabo.metric.ErrorRate;
 import cilabo.metric.Metric;
@@ -126,7 +120,7 @@ public class MichiganStyleFGBML_main {
 																		  problem.getKnowledge(),
 																		  train);
 
-			PatternBaseRuleGeneration ruleGenerateOperator = new PatternBaseRuleGenerationBuilder(H, 
+			PatternBaseRuleGeneration ruleGenerateOperator = new PatternBaseRuleGenerationBuilder(H,
 																								  problem.getKnowledge(),
 																								  train.getPatterns())
 																								  .build();
@@ -165,6 +159,7 @@ public class MichiganStyleFGBML_main {
 			List<RuleBasedClassifier> totalClassifiers = algorithm.getTotalClassifier();
 			Metric metric = new ErrorRate();
 			RuleBasedClassifier bestClassifier = null;
+
 			double minValue = Double.MAX_VALUE;
 			for(int i = 0; i < totalClassifiers.size(); i++) {
 				double errorRate = (double)metric.metric(totalClassifiers.get(i), train);
@@ -176,54 +171,6 @@ public class MichiganStyleFGBML_main {
 
 			PostProcessing postProcessing = new RemoveNotBeWinnerProcessing(train);
 			postProcessing.postProcess(bestClassifier);
-
-
-			int kmax = 200;
-			double deltaT = 0.001;
-			double Rmax = 0.5;
-//			SingleThreshold single = new SingleThreshold(bestClassifier, train.getPatterns());
-//
-//			EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
-//
-//			double[] Result = estimateThreshold.run(bestClassifier, train.getPatterns());
-//
-//			for(double s : Result) {
-//				System.out.println(s);
-//			}
-//
-//			ClassWiseThresholds CWT = new ClassWiseThresholds(bestClassifier, train.getPatterns());
-//
-//			estimateThreshold = new EstimateThreshold(CWT, kmax, deltaT, Rmax);
-//
-//			Result = estimateThreshold.run(bestClassifier, train.getPatterns());
-//
-//			for(double s : Result) {
-//				System.out.println(s);
-//			}
-
-
-			RejectionBase RWT = new RuleWiseThresholds(bestClassifier, train);
-
-			EstimateThreshold estimateThreshold = new EstimateThreshold(RWT, kmax, deltaT, Rmax);
-
-			double[] Result = estimateThreshold.run();
-
-			for(double s : Result) {
-				System.out.println(s);
-			}
-
-			int k = 3;
-			SecondClassifier secondClassifier = new KNN(train, k);
-
-			TwoStageRejectOption twoStageRejectOption = new TwoStageRejectOption(RWT,
-																				secondClassifier,
-																				bestClassifier,
-																				train);
-
-			twoStageRejectOption.setThreshold(estimateThreshold.getThreshold());
-
-			System.out.println(twoStageRejectOption.culcAcc());
-			System.out.println(twoStageRejectOption.culcRejectOption());
 
 			// Test data
 			double errorRate = (double)metric.metric(bestClassifier, test);

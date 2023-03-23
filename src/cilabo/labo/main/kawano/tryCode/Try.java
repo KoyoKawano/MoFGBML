@@ -3,6 +3,7 @@ package cilabo.labo.main.kawano.tryCode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import cilabo.data.DataSet;
@@ -16,9 +17,14 @@ import cilabo.fuzzy.rule.antecedent.Antecedent;
 import cilabo.fuzzy.rule.consequent.Consequent;
 import cilabo.fuzzy.rule.consequent.ConsequentFactory;
 import cilabo.fuzzy.rule.consequent.factory.MoFGBML_Learning;
+import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.KNN;
+import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.SecondClassifier;
+import cilabo.labo.main.kawano.rejectOption.TwoStageRejectOption.TwoStageRejectOption;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassWiseThresholds;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.ClassificationDataInfo;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.EstimateThreshold;
+import cilabo.labo.main.kawano.rejectOption.multipleThresh.RejectOptionMetric;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.RejectionBase;
-import cilabo.labo.main.kawano.rejectOption.multipleThresh.RuleWiseThresholds;
 import cilabo.labo.main.kawano.rejectOption.multipleThresh.SingleThreshold;
 import cilabo.utility.Input;
 
@@ -95,24 +101,31 @@ public class Try {
 
 		ruleBasedClassifier.setClassification(new SingleWinnerRuleSelection());
 
-
 		for(Rule rule : ruleSet) {
 			ruleBasedClassifier.addRule(rule);
 		}
 
-		int kmax = 300;
+		int kmax = 500;
 		double deltaT = 0.001;
-		double Rmax = 0.1;
+		double Rmax = 0.50;
 
-		RejectionBase single = new SingleThreshold(ruleBasedClassifier, train);
+		List<ClassificationDataInfo> trainInfo = train.getPatterns().stream()
+				.map(x-> new ClassificationDataInfo(x, ruleBasedClassifier))
+				.collect(Collectors.toList());
 
-		EstimateThreshold estimateThreshold = new EstimateThreshold(single, kmax, deltaT, Rmax);
+
+		SingleThreshold single = new SingleThreshold();
+
+		EstimateThreshold estimateThreshold = new EstimateThreshold(trainInfo, single, kmax, deltaT, Rmax);
 
 		double[] expected = estimateThreshold.run();
 
-		RejectionBase cwt = new RuleWiseThresholds(ruleBasedClassifier, train);
+		System.out.println(expected[0]);
+		System.out.println(expected[1]);
 
-		EstimateThreshold estimateClassWiseThresholds = new EstimateThreshold(cwt, kmax, deltaT, Rmax);
+		RejectionBase cwt = new ClassWiseThresholds(train);
+
+		EstimateThreshold estimateClassWiseThresholds = new EstimateThreshold(trainInfo, cwt, kmax, deltaT, Rmax);
 
 		expected = estimateClassWiseThresholds.run();
 
@@ -120,8 +133,15 @@ public class Try {
 
 		DoubleStream.of(T).forEach(System.out::println);
 
-		System.out.println(expected[0]);
-		System.out.println(expected[1]);
+
+
+		SecondClassifier secondClassifier = new KNN(train, 3);
+		TwoStageRejectOption twoStageRejectOption = new TwoStageRejectOption(cwt, secondClassifier);
+
+
+		RejectOptionMetric metric = new RejectOptionMetric(twoStageRejectOption);
+		System.out.println(metric.culcAcc(trainInfo, estimateClassWiseThresholds.getThreshold()));
+		System.out.println(metric.culcRejectRate(trainInfo, estimateClassWiseThresholds.getThreshold()));
 
 	}
 

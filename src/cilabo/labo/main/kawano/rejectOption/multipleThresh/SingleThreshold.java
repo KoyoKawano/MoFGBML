@@ -1,10 +1,6 @@
 package cilabo.labo.main.kawano.rejectOption.multipleThresh;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import cilabo.data.DataSet;
-import cilabo.fuzzy.classifier.RuleBasedClassifier;
 
 public class SingleThreshold implements RejectionBase{
 
@@ -12,11 +8,8 @@ public class SingleThreshold implements RejectionBase{
 
 	int thresholdSize = 1;
 
-	public SingleThreshold(RuleBasedClassifier Classifier, DataSet dataset) {
+	public SingleThreshold() {
 
-		classificationInfo = dataset.getPatterns().stream()
-				.map(x-> new ClassificationDataInfo(x, Classifier))
-				.collect(Collectors.toList());
 
 	}
 

@@ -1,7 +1,9 @@
 package cilabo.labo.main.kawano.rejectOption.multipleThresh;
 
 import java.util.Arrays;
+import java.util.List;
 
+import cilabo.fuzzy.classifier.RuleBasedClassifier;
 import cilabo.fuzzy.classifier.operator.classification.factory.SingleWinnerRuleSelection;
 
 public class EstimateThreshold {
@@ -10,6 +12,8 @@ public class EstimateThreshold {
 
 	SingleWinnerRuleSelection classification = new SingleWinnerRuleSelection();
 
+	RuleBasedClassifier classifier;
+	List<ClassificationDataInfo> classificationInfo;
 	RejectionBase rejectionBase;
 	int kmax;
 	double deltaT;
@@ -21,12 +25,18 @@ public class EstimateThreshold {
 
 	/********** constructor ************************/
 
-	public EstimateThreshold(RejectionBase rejectionBase, int kmax, double deltaT, double Rmax){
-
+	public EstimateThreshold(List<ClassificationDataInfo> classificationInfo,
+							 RejectionBase rejectionBase,
+							 int kmax,
+							 double deltaT,
+							 double Rmax)
+	{
 		this.rejectionBase = rejectionBase;
 		this.kmax = kmax;
 		this.deltaT = deltaT;
 		this.Rmax = Rmax;
+
+		this.classificationInfo = classificationInfo;
 	}
 	/*******************************************/
 
@@ -42,7 +52,7 @@ public class EstimateThreshold {
 
 		double[] bestThresh = metric.initialization();
 
-		double bestAcc = metric.culcAcc(rejectionBase.getClassificationInfo(), threshold);
+		double bestAcc = metric.culcAcc(classificationInfo, threshold);
 
 		double bestReject = 0.0;
 
@@ -64,9 +74,9 @@ public class EstimateThreshold {
 
 					thresh[id] += k * deltaT;
 
-					double acc = metric.culcAcc(rejectionBase.getClassificationInfo(), thresh);
+					double acc = metric.culcAcc(classificationInfo, thresh);
 
-					double rej = metric.culcRejectRate(rejectionBase.getClassificationInfo(), thresh);
+					double rej = metric.culcRejectRate(classificationInfo, thresh);
 //					System.out.println("acc = " + String.valueOf(acc) + " RR = " + String.valueOf(rej));
 
 					//Rmaxを超えない棄却割合でaccを改善した場合，

@@ -46,7 +46,7 @@ public class RejectOptionMetric {
 													.collect(Collectors.toList());
 
 		if(DoubleStream.of(threshold).allMatch(x -> x == 0.0))
-			return (double)acceptData.stream().filter(ClassificationDataInfo::getisRight).count() / rejectionBase.getClassificationInfo().size();
+			return (double)acceptData.stream().filter(ClassificationDataInfo::getisRight).count() / dataInfo.size();
 
 		return (double)acceptData.stream().filter(ClassificationDataInfo::getisRight).count() / acceptData.size();
 	}

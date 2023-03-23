@@ -9,6 +9,11 @@ import cilabo.fuzzy.rule.Rule;
 import cilabo.labo.main.kawano.rejectOption.Confidence.Confidence;
 import cilabo.labo.main.kawano.rejectOption.Confidence.FirstAndSecondClass;
 
+/**
+ * 識別器が識別した情報を格納する．
+ * RejectOptionの閾値計算は，パターンの確信度と結論部クラス(CWT)，識別したルールのインデックス(RWT)があれば，できる．
+ * 計算時間の関係上，１度計算すればいいので，ここに格納する．
+ */
 public class ClassificationDataInfo extends DataSet{
 
 	Double confidenceValue;
@@ -17,11 +22,10 @@ public class ClassificationDataInfo extends DataSet{
 	int RuleID;
 	boolean isRight;
 	Pattern pattern;
-	Confidence delta = new FirstAndSecondClass();
+	Confidence conf = new FirstAndSecondClass();
+	SingleWinnerRuleSelection classification = new SingleWinnerRuleSelection();
 
 	public ClassificationDataInfo(Pattern pattern, RuleBasedClassifier Classifier) {
-
-		SingleWinnerRuleSelection classification = new SingleWinnerRuleSelection();
 
 		this.pattern = pattern;
 
@@ -30,12 +34,12 @@ public class ClassificationDataInfo extends DataSet{
 		if(!(WinnerRule instanceof RejectedRule)) {
 
 			this.WinnerRuleClass = WinnerRule
-					.getConsequent()
-					.getClassLabel().getClassLabel();
+									.getConsequent()
+									.getClassLabel().getClassLabel();
 
 			this.RuleID = classification.getWinnerRuleID();
 
-			this.confidenceValue = delta.confidence(Classifier, pattern.getInputVector());
+			this.confidenceValue = conf.confidence(Classifier, pattern.getInputVector());
 
 			this.isRight = WinnerRule
 							.getConsequent()
@@ -46,15 +50,6 @@ public class ClassificationDataInfo extends DataSet{
 			this.confidenceValue = 0.0;
 		}
 	}
-
-	public String toString() {
-
-		String str = this.pattern.toString();
-		str += ", conf :" + String.valueOf(confidenceValue);
-		str += ", TorF : " + String.valueOf(this.isRight);
-
-		return str;
- 	}
 
 	public Double getConfidenceValue() {
 		return this.confidenceValue;

@@ -11,15 +11,25 @@ import cilabo.fuzzy.classifier.Classifier;
 import cilabo.fuzzy.classifier.RuleBasedClassifier;
 import cilabo.fuzzy.rule.Rule;
 
+/**
+ *
+ * @author kawano
+ *
+ * 2つのルールの競合度合いによる確信度
+ */
 public class FirstAndSecondClass implements Confidence{
 
-	//確信度を返す関数
-	//識別不能な場合，-1.0を返す（必ずrejectされる）
 
 		public FirstAndSecondClass() {
 			// TODO 自動生成されたコンストラクター・スタブ
 		}
+
+		/**
+		 * 確信度を返す関数
+		 * 識別不能な場合，-1.0を返す（必ずrejectされる）
+		 */
 		public double confidence(Classifier classifier, InputVector vector) {
+
 			if(classifier.getClass() != RuleBasedClassifier.class) return -1.0;
 
 			List<Rule> ruleSet = ((RuleBasedClassifier)classifier).getRuleSet();
